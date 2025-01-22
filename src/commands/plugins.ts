@@ -94,11 +94,15 @@ export async function plugins(args: string[], opts: Record<string, unknown>) {
 }
 
 async function download(url: string) {
-    const data = await fetch(url, { method: 'GET' })
-        .then((res) => res.text())
-        .catch(() => null);
-
-    if (!data) throw new Error('Download failed! Kindly contact developers');
-
-    return data;
+    try {
+        const data = await (await fetch(url, { method: 'GET' })).text()
+        /// when there was no error on the API side and the resource could not be found either.
+        if(!data) throw new Error('Download failed, not found plugin! Kindly contact developers')
+        
+        return data 
+    } catch (error) {
+        /// Process API error
+        console.log((error as Error).message)
+        throw new Error('Download failed! Kindly contact developers')
+    }
 }
